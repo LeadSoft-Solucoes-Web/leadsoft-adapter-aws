@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="LeadSoft.ico" />
+    <File Path="LeadSoft.png" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="LeadSoft.Adapter.Aws.S3/LeadSoft.Adapter.Aws.S3.csproj" Id="31fceb59-0b03-4e54-b31b-15b06edbd456" />
+  <Project Path="LeadSoft.Adapter.Aws.SecretsManager/LeadSoft.Adapter.Aws.SecretsManager.csproj" Id="1b3aa1bc-7290-40c8-abcc-17844bd51945" />
+  <Project Path="LeadSoft.Adapter.Aws.Tests/LeadSoft.Adapter.Aws.Tests.csproj" Id="4648213c-fb3b-41eb-8d73-4acb90b590e4" />
+</Solution>

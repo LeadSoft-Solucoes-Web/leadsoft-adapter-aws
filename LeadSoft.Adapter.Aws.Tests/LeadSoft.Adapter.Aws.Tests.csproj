@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="S3s\Samples\LeadSoft.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="S3s\Samples\LeadSoft.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LeadSoft.Adapter.Aws.S3\LeadSoft.Adapter.Aws.S3.csproj" />
+    <ProjectReference Include="..\LeadSoft.Adapter.Aws.SecretsManager\LeadSoft.Adapter.Aws.SecretsManager.csproj" />
+  </ItemGroup>
+
+</Project>

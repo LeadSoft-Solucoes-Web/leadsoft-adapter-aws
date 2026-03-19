@@ -1,24 +1,31 @@
-# LeadSoft® Adapter Aws
+# LeadSoft® Adapter Aws S3
 
-Este pacote `Open Source` serve como um toolkit para acelerar o uso de algumas ferramentas a AWS, como S3, Secrets Manager, entre outros que estão por vir. Ele é parte da nossa iniciativa de compartilhar conhecimento e recursos com a comunidade de desenvolvimento, permitindo que outros desenvolvedores possam se beneficiar do nosso trabalho e contribuir para o crescimento da comunidade de desenvolvimento.
-
-O foco aqui é fornecer uma interface simples para adicionar como injeção de dependência, funcionalidades triviais de pacotes da AWS cheios de recursos, de forma mais enxuta.
+Este pacote `Open Source` serve como um uma interface simples para adicionar como injeção de dependência, a integração com Amazon S3, de forma mais enxuta. Ele é parte da nossa iniciativa de compartilhar conhecimento e recursos com a comunidade de desenvolvimento, permitindo que outros desenvolvedores possam se beneficiar do nosso trabalho e contribuir para o crescimento da comunidade de desenvolvimento.
 
 Este pacote é mantido pela [LeadSoft®](https://leadsoft.com.br/), uma empresa de tecnologia que oferece soluções inovadoras para o mercado. Se você tiver alguma dúvida ou sugestão, não hesite em entrar em contato conosco.
+
+> Ainda não disponível na Nuget.org, mas em breve estará. Fique atento!
 
 #### [GitHub Repo: leadsoft-adapter-aws](https://github.com/LeadSoft-Solucoes-Web/leadsoft-adapter-aws)
 
 ## Principais características
 - Compatível com .NET 10.0.
+- Chamadas assíncronas com `async`/`await`.
+- Integração simples com _Dependency Injection_ (DI) do .NET.
+- Tratamento centralizado de erros e respostas HTTP.
 - Open Source (MIT License).
 
+## Métodos disponíveis
+- `Task<string> UploadFileAsync(string bucketName, IFormFile file, string filename, CancellationToken ct = default)`
+    - Faz o upload de um arquivo para um bucket S3 e retorna a URL do arquivo.
+- `Task<string> GetPresignedUrlAsync(string bucketName, string key, TimeSpan? expiresIn = null)`
+    - Gera uma URL pré-assinada para acessar um arquivo no S3, com tempo de expiração configurável.
+
 ---
 
-##  Pacotes
-
-#### [Nuget.Org: LeadSoft.Adapter.Aws.SecretsManager](https://www.nuget.org/packages/LeadSoft.Adapter.Aws.SecretsManager)
-
----
+## Versionamento e compatibilidade
+- Projeto direcionado para .NET 10.0. Verifique a compatibilidade do pacote com sua aplicação.
+- Seguir práticas de versionamento semântico: breaking changes → major, novas features → minor, correções → patch.
 
 ## Licença
 Consulte o arquivo de licença no repositório para detalhes sobre uso e redistribuição.
