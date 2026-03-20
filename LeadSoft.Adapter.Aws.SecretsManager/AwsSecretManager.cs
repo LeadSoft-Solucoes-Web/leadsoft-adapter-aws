@@ -48,23 +48,24 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
             }
         }
 
+
         /// <summary>
-        /// Asynchronously retrieves a collection of secrets from AWS Secrets Manager.
+        /// Asynchronously retrieves the names of all available secret keys.
         /// </summary>
-        /// <remarks>This method fetches the secret value associated with the configured request and
-        /// parses it into a dictionary of key-value pairs. The secret value is expected to be in JSON format.</remarks>
-        /// <returns>A <see cref="Dictionary{TKey, TValue}"/> containing the secrets as key-value pairs.</returns>
-        /// <exception cref="BadRequestAppException">Thrown if an error occurs while retrieving the secret value.</exception>
-        public async Task<Dictionary<string, string>> GetSecretsAsync()
+        /// <returns>A list of strings containing the names of all secret keys. The list will be empty if no secrets are
+        /// available.</returns>
+        /// <exception cref="ForbiddenAppException">Thrown if the method is called in a production environment, where listing secret key names is not permitted.</exception>
+        /// <exception cref="BadRequestAppException">Thrown if an error occurs while retrieving the secret values.</exception>
+        public async Task<IList<string>> GetSecretsKeyNamesAsync()
         {
+            if (EnvUtil.IsProduction())
+                throw new ForbiddenAppException($"You cannot list secrets key names from {EnvUtil.AspNet} environment.");
+
             try
             {
-                GetSecretValueResponse response = await _AwsSM_Client.GetSecretValueAsync(_AwsSM_Request);
+                Dictionary<string, string> secretValues = await GetSecretsAsync();
 
-                return response.SecretString.JsonToObject<Dictionary<string, string>>().ToDictionary(
-                    kvp => kvp.Key.ToUpper(),
-                    kvp => kvp.Value
-                );
+                return [.. secretValues.Select(kvp => kvp.Key)];
             }
             catch (Exception ex)
             {
@@ -102,6 +103,31 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
             {
                 _Logger.LogError(ex, ex.Message);
                 throw new BadRequestAppException($@"Error retrieving secret value for ""{aKey}"": {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves a collection of secrets from AWS Secrets Manager.
+        /// </summary>
+        /// <remarks>This method fetches the secret value associated with the configured request and
+        /// parses it into a dictionary of key-value pairs. The secret value is expected to be in JSON format.</remarks>
+        /// <returns>A <see cref="Dictionary{TKey, TValue}"/> containing the secrets as key-value pairs.</returns>
+        /// <exception cref="BadRequestAppException">Thrown if an error occurs while retrieving the secret value.</exception>
+        private async Task<Dictionary<string, string>> GetSecretsAsync()
+        {
+            try
+            {
+                GetSecretValueResponse response = await _AwsSM_Client.GetSecretValueAsync(_AwsSM_Request);
+
+                return response.SecretString.JsonToObject<Dictionary<string, string>>().ToDictionary(
+                    kvp => kvp.Key.ToUpper(),
+                    kvp => kvp.Value
+                );
+            }
+            catch (Exception ex)
+            {
+                _Logger.LogError(ex, ex.Message);
+                throw new BadRequestAppException($@"Error retrieving secret values: {ex.Message}");
             }
         }
 

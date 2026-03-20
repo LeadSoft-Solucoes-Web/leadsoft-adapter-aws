@@ -17,6 +17,8 @@ Este pacote é mantido pela [LeadSoft®](https://leadsoft.com.br/), uma empresa 
 ## Métodos disponíveis
 - `Task<string> GetSecretValueAsync(string aKey)`
     - Obtém uma chave do AWS Secrets Manager pelo nome da chave.
+- `Task<Dictionary<string, string>> GetSecretsAsync();`
+    - Obtém a lista de todas as chaves do AWS Secrets Manager. (Este método é destinado para uso apenas em ambientes não produtivos.)
 
 ---
 
