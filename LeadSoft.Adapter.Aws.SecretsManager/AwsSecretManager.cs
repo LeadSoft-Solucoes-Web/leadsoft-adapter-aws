@@ -1,6 +1,9 @@
 ﻿using Amazon;
+using Amazon.Runtime;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
+using Amazon.SecurityToken;
+using Amazon.SecurityToken.Model;
 using LeadSoft.Common.Library.EnvUtils;
 using LeadSoft.Common.Library.Exceptions;
 using LeadSoft.Common.Library.Extensions;
@@ -19,21 +22,28 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
     {
         private readonly AmazonSecretsManagerClient _AwsSM_Client;
         private readonly GetSecretValueRequest _AwsSM_Request;
-        private readonly ILogger<AwsSecretManager> _Logger = new Logger<AwsSecretManager>(new LoggerFactory());
+        private readonly RegionEndpoint _AwsSM_Region = RegionEndpoint.GetBySystemName(EnvUtil.Get(EnvVariable.AwsSecretsManagerRegion));
         private bool disposedValue;
+        private readonly ILogger<AwsSecretManager>? _Logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AwsSecretManager"/> class.
+        /// Initializes a new instance of the AwsSecretManager class, optionally assuming an AWS role for credentials.
         /// </summary>
-        /// <remarks>
-        /// This constructor sets up the AWS Secrets Manager client and prepares a request to retrieve the secret.
-        /// The secret ID is determined based on the current environment (production or pre-production), and the version stage is set to "AWSCURRENT".
-        /// </remarks>
-        public AwsSecretManager()
+        /// <remarks>This constructor configures the AWS Secrets Manager client using either the provided
+        /// role or default credentials. The client is initialized for the region and secret specified in the
+        /// environment variables. Ensure that the required environment variables are set before instantiating this
+        /// class.</remarks>
+        /// <param name="assumeRole">An optional AssumeRoleRequest specifying the AWS role to assume for authentication. If null, the default
+        /// credentials are used.</param>
+        /// <param name="logger">An optional logger for logging errors and information. If null, logging is disabled.</param>
+        /// <exception cref="BadRequestAppException">Thrown if the AWS Secrets Manager client cannot be initialized due to configuration or connection errors.</exception>
+        public AwsSecretManager(AssumeRoleRequest? assumeRole = null, ILogger<AwsSecretManager>? logger = null)
         {
+            _Logger = logger;
             try
             {
-                _AwsSM_Client = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(EnvUtil.Get(EnvVariable.AwsSecretsManagerRegion)));
+                _AwsSM_Client = assumeRole is not null ? new AmazonSecretsManagerClient(GetAWSSessionCredentialsAsync(assumeRole).Result, _AwsSM_Region)
+                                                       : new AmazonSecretsManagerClient(_AwsSM_Region);
 
                 _AwsSM_Request = new()
                 {
@@ -43,11 +53,28 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
             }
             catch (Exception ex)
             {
-                _Logger.LogError(ex, $@"Error initializing AWS Secrets Manager client [{RegionEndpoint.GetBySystemName(EnvUtil.Get(EnvVariable.AwsSecretsManagerRegion))}, {EnvUtil.Get(EnvVariable.AwsSecretsManagerName)}, AWSCURRENT]: {ex.Message}");
+                _logErrorInitializingClient?.Invoke(_Logger, $"{RegionEndpoint.GetBySystemName(EnvUtil.Get(EnvVariable.AwsSecretsManagerRegion))}, {EnvUtil.Get(EnvVariable.AwsSecretsManagerName)}, AWSCURRENT", ex);
                 throw new BadRequestAppException($@"Error initializing AWS Secrets Manager client: {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Asynchronously obtains temporary AWS session credentials by assuming the specified IAM role.
+        /// </summary>
+        /// <remarks>The returned credentials are valid for a limited duration as specified in the AssumeRole request. Use these credentials to access AWS resources with the permissions of the assumed role.</remarks>
+        /// <param name="assumeRole">The request parameters for the AssumeRole operation. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the temporary AWS session credentials, or null if the request is null.</returns>
+        private async Task<SessionAWSCredentials> GetAWSSessionCredentialsAsync(AssumeRoleRequest assumeRole)
+        {
+            if (assumeRole is null)
+                return null;
+
+            AssumeRoleResponse assumeRoleResponse = await new AmazonSecurityTokenServiceClient(_AwsSM_Region).AssumeRoleAsync(assumeRole);
+
+            return new(assumeRoleResponse.Credentials.AccessKeyId,
+                        assumeRoleResponse.Credentials.SecretAccessKey,
+                        assumeRoleResponse.Credentials.SessionToken);
+        }
 
         /// <summary>
         /// Asynchronously retrieves the names of all available secret keys.
@@ -69,7 +96,7 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
             }
             catch (Exception ex)
             {
-                _Logger.LogError(ex, ex.Message);
+                _logErrorRetrievingSecretValues?.Invoke(_Logger, ex);
                 throw new BadRequestAppException($@"Error retrieving secret values: {ex.Message}");
             }
         }
@@ -96,12 +123,12 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
             }
             catch (NotFoundAppException ex)
             {
-                _Logger.LogError(ex, ex.Message);
+                _logNotFoundSecretValueForKey?.Invoke(_Logger, aKey, ex);
                 throw new NotFoundAppException($@"No found secret value for key ""{aKey}"": {ex.Message}");
             }
             catch (Exception ex)
             {
-                _Logger.LogError(ex, ex.Message);
+                _logErrorRetrievingSecretValueForKey?.Invoke(_Logger, aKey, ex);
                 throw new BadRequestAppException($@"Error retrieving secret value for ""{aKey}"": {ex.Message}");
             }
         }
@@ -120,16 +147,42 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
                 GetSecretValueResponse response = await _AwsSM_Client.GetSecretValueAsync(_AwsSM_Request);
 
                 return response.SecretString.JsonToObject<Dictionary<string, string>>().ToDictionary(
-                    kvp => kvp.Key.ToUpper(),
+                    kvp => kvp.Key.ToUpperInvariant(),
                     kvp => kvp.Value
                 );
             }
             catch (Exception ex)
             {
-                _Logger.LogError(ex, ex.Message);
+                _logErrorRetrievingSecretValues?.Invoke(_Logger, ex);
                 throw new BadRequestAppException($@"Error retrieving secret values: {ex.Message}");
             }
         }
+
+        #region [ Logging & Dispose pattern ]
+
+        private static readonly Action<ILogger, string, Exception?> _logErrorInitializingClient =
+            LoggerMessage.Define<string>(
+                LogLevel.Error,
+                new EventId(1, nameof(_logErrorInitializingClient)),
+                "Error initializing AWS Secrets Manager client [{RegionAndName}]: {ErrorMessage}");
+
+        private static readonly Action<ILogger, Exception?> _logErrorRetrievingSecretValues =
+            LoggerMessage.Define(
+                LogLevel.Error,
+                new EventId(2, nameof(_logErrorRetrievingSecretValues)),
+                "Error retrieving secret values");
+
+        private static readonly Action<ILogger, string, Exception?> _logErrorRetrievingSecretValueForKey =
+            LoggerMessage.Define<string>(
+                LogLevel.Error,
+                new EventId(3, nameof(_logErrorRetrievingSecretValueForKey)),
+                "Error retrieving secret value for \"{Key}\"");
+
+        private static readonly Action<ILogger, string, Exception?> _logNotFoundSecretValueForKey =
+            LoggerMessage.Define<string>(
+                LogLevel.Error,
+                new EventId(4, nameof(_logNotFoundSecretValueForKey)),
+                "No found secret value for key \"{Key}\"");
 
         private void Dispose(bool disposing)
         {
@@ -157,5 +210,7 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        #endregion
     }
 }
