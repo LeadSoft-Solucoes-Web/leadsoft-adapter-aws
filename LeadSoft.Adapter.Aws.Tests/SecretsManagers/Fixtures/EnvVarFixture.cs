@@ -20,16 +20,11 @@
         public EnvVarFixture()
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            //Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ARN", "");
-            //Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_NAME", "");
-            //Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_REGION", "");
-            //Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ROLE_ARN", "");
-            //Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ROLE_SESSION_NAME", "");
-            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ARN", "arn:aws:secretsmanager:eu-west-1:098542161990:secret:Brazil_Warranty_Form_SM-AEXxLr");
-            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_NAME", "Brazil_Warranty_Form_SM");
-            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_REGION", "eu-west-1");
-            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ROLE_ARN", "arn:aws:iam::098542161990:role/WS-01WK-role_Preprod-Castrol-Brazil-Warranty-Team");
-            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ROLE_SESSION_NAME", "WS-01WK-role_Preprod-Castrol-Brazil-Warranty-Team");
+            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ARN", "");
+            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_NAME", "");
+            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_REGION", "");
+            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ROLE_ARN", "");
+            Environment.SetEnvironmentVariable("AWS_SECRETS_MANAGER_ROLE_SESSION_NAME", "");
         }
 
         /// <summary>
