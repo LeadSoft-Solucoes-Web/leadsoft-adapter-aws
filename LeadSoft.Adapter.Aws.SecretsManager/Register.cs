@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Amazon.SecurityToken.Model;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LeadSoft.Adapter.Aws.SecretsManager
 {
@@ -20,6 +22,18 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
         public static void AddAwsSecretManagerService(this IServiceCollection services)
         {
             services.AddSingleton<IAwsSecretManager, AwsSecretManager>();
+        }
+
+        /// <summary>
+        /// Adds the AWS Secrets Manager service to the specified service collection for dependency injection.
+        /// </summary>
+        /// <remarks>Registers the IAwsSecretManager implementation as a singleton in the dependency injection container. This method should be called during application startup to enable secret retrieval from AWS Secrets Manager.</remarks>
+        /// <param name="services">The service collection to which the AWS Secrets Manager service will be added. Cannot be null.</param>
+        /// <param name="assumeRole">An optional AWS AssumeRoleRequest used to assume a specific IAM role when accessing secrets. If null, the default credentials are used.</param>
+        /// <param name="logger">An optional logger instance for logging operations performed by the AWS Secrets Manager service.</param>
+        public static void AddAwsSecretManagerService(this IServiceCollection services, AssumeRoleRequest? assumeRole = null, ILogger<AwsSecretManager>? logger = null)
+        {
+            services.AddSingleton<IAwsSecretManager>(awsSecretManager => new AwsSecretManager(assumeRole, logger));
         }
     }
 }
