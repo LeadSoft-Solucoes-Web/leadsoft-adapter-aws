@@ -129,4 +129,12 @@
     <value>AWS_SECRETS_MANAGER_REGION</value>
     <comment>AWS Secrets Manager Region</comment>
   </data>
+  <data name="AwsSecretsManagerRoleArn" xml:space="preserve">
+    <value>AWS_SECRETS_MANAGER_ROLE_ARN</value>
+    <comment>AWS Secrets Manager Role Arn for Custom Credentials</comment>
+  </data>
+  <data name="AwsSecretsManagerRoleSessionName" xml:space="preserve">
+    <value>AWS_SECRETS_MANAGER_ROLE_SESSION_NAME</value>
+    <comment>AWS Secrets Manager Role Session Name for Custom Credentials</comment>
+  </data>
 </root>

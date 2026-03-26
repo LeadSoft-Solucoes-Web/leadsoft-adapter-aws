@@ -86,5 +86,23 @@ namespace LeadSoft.Adapter.Aws.SecretsManager {
                 return ResourceManager.GetString("AwsSecretsManagerRegion", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AWS_SECRETS_MANAGER_ROLE_ARN.
+        /// </summary>
+        internal static string AwsSecretsManagerRoleArn {
+            get {
+                return ResourceManager.GetString("AwsSecretsManagerRoleArn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AWS_SECRETS_MANAGER_ROLE_SESSION_NAME.
+        /// </summary>
+        internal static string AwsSecretsManagerRoleSessionName {
+            get {
+                return ResourceManager.GetString("AwsSecretsManagerRoleSessionName", resourceCulture);
+            }
+        }
     }
 }
