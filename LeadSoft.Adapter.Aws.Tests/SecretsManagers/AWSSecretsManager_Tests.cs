@@ -38,7 +38,7 @@ namespace LeadSoft.Adapter.Aws.Tests.SecretsManagers
         }
 
         [Theory]
-        [InlineData("TestSecretKey")]
+        [InlineData("AZURE_AD_CLIENT_ID")]
         public async Task GetSecretValueAsync(string secretKey)
         {
             IAwsSecretManager aws = new AwsSecretManager();
@@ -48,7 +48,7 @@ namespace LeadSoft.Adapter.Aws.Tests.SecretsManagers
         }
 
         [Theory]
-        [InlineData("TestSecretKey")]
+        [InlineData("AZURE_AD_CLIENT_ID")]
         public async Task GetSecretValueWithCredentialsAsync(string secretKey)
         {
             AssumeRoleRequest assumeRoleRequest = new()

@@ -3,7 +3,6 @@ using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
-using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
 using LeadSoft.Common.Library.EnvUtils;
 using LeadSoft.Common.Library.Exceptions;
@@ -58,11 +57,14 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
         }
 
         /// <summary>
-        /// Asynchronously obtains temporary AWS session credentials by assuming the specified IAM role.
+        /// Asynchronously obtains temporary AWS session credentials by assuming the specified role.
         /// </summary>
-        /// <remarks>The returned credentials are valid for a limited duration as specified in the AssumeRole request. Use these credentials to access AWS resources with the permissions of the assumed role.</remarks>
-        /// <param name="assumeRole">The request parameters for the AssumeRole operation. Cannot be null.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the temporary AWS session credentials, or null if the request is null.</returns>
+        /// <remarks>This method retrieves credentials from the AWS credential profile store using the
+        /// provided role session name. Ensure that the credential profile is correctly configured before calling this
+        /// method. If credentials cannot be retrieved, an exception is thrown.</remarks>
+        /// <param name="assumeRole">The request containing the parameters required to assume the AWS role. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the session credentials for the
+        /// assumed role, or null if the request is null.</returns>
         private async Task<SessionAWSCredentials> GetAWSSessionCredentialsAsync(AssumeRoleRequest assumeRole)
         {
             if (assumeRole is null)
@@ -72,11 +74,11 @@ namespace LeadSoft.Adapter.Aws.SecretsManager
                 if (!new CredentialProfileStoreChain().TryGetAWSCredentials(assumeRole.RoleSessionName, out AWSCredentials awsCredentials))
                     throw new Exception("Unable to retrieve AWS credentials from the credential profile store. Please ensure that the profile is correctly configured.");
 
-                AssumeRoleResponse assumeRoleResponse = await new AmazonSecurityTokenServiceClient(awsCredentials, _AwsSM_Region).AssumeRoleAsync(assumeRole);
+                ImmutableCredentials credentials = await awsCredentials.GetCredentialsAsync();
 
-                return new(assumeRoleResponse.Credentials.AccessKeyId,
-                           assumeRoleResponse.Credentials.SecretAccessKey,
-                           assumeRoleResponse.Credentials.SessionToken);
+                return new(credentials.AccessKey,
+                           credentials.SecretKey,
+                           credentials.Token);
             }
             catch (Exception ex)
             {
