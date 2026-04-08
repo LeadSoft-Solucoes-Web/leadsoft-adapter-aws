@@ -1,6 +1,6 @@
 # LeadSoft® Adapter Aws Secrets Manager
 
-Este pacote `Open Source` serve como um uma interface simples para adicionar como injeção de dependência, a integração com o AWS Secrets Manager, de forma mais enxuta. Ele é parte da nossa iniciativa de compartilhar conhecimento e recursos com a comunidade de desenvolvimento, permitindo que outros desenvolvedores possam se beneficiar do nosso trabalho e contribuir para o crescimento da comunidade de desenvolvimento.
+Este pacote `Open Source` serve como uma interface simples para adicionar como injeção de dependência, a integração com o AWS Secrets Manager, de forma mais enxuta. Ele é parte da nossa iniciativa de compartilhar conhecimento e recursos com a comunidade de desenvolvimento, permitindo que outros desenvolvedores possam se beneficiar do nosso trabalho e contribuir para o crescimento da comunidade de desenvolvimento.
 
 Este pacote é mantido pela [LeadSoft®](https://leadsoft.com.br/), uma empresa de tecnologia que oferece soluções inovadoras para o mercado. Se você tiver alguma dúvida ou sugestão, não hesite em entrar em contato conosco.
 

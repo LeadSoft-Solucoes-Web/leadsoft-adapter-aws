@@ -1,6 +1,6 @@
 # LeadSoft® Adapter Aws
 
-Este pacote `Open Source` serve como um toolkit para acelerar o uso de algumas ferramentas a AWS, como S3, Secrets Manager, entre outros que estão por vir. Ele é parte da nossa iniciativa de compartilhar conhecimento e recursos com a comunidade de desenvolvimento, permitindo que outros desenvolvedores possam se beneficiar do nosso trabalho e contribuir para o crescimento da comunidade de desenvolvimento.
+Este pacote `Open Source` serve como um toolkit para acelerar o uso de algumas ferramentas da AWS, como S3, Secrets Manager, entre outros que estão por vir. Ele é parte da nossa iniciativa de compartilhar conhecimento e recursos com a comunidade de desenvolvimento, permitindo que outros desenvolvedores possam se beneficiar do nosso trabalho e contribuir para o crescimento da comunidade.
 
 O foco aqui é fornecer uma interface simples para adicionar como injeção de dependência, funcionalidades triviais de pacotes da AWS cheios de recursos, de forma mais enxuta.
 
